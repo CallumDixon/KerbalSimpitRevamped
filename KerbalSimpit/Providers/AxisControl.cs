@@ -82,6 +82,9 @@ namespace KerbalSimPit.Providers
         public void Update()
         {
             currentSASMode = FlightGlobals.ActiveVessel.Autopilot.Mode;
+
+            
+
                 byte SASModeSend = 0;
 
                 if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Prograde))
