@@ -76,6 +76,7 @@ namespace KerbalSimPit.Providers
             FlightGlobals.ActiveVessel.OnPostAutopilotUpdate += AutopilotUpdater;
         }
 
+        //update
         public void Update()
         {
             currentSASMode = FlightGlobals.ActiveVessel.Autopilot.Mode;
