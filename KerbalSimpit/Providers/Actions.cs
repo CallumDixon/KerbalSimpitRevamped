@@ -49,6 +49,7 @@ namespace KerbalSimpit.Providers
 
         public void Update()
         {
+            updateCurrentState();
             Vessel av = FlightGlobals.ActiveVessel;
             if (activateBuffer > 0)
             {
@@ -64,9 +65,7 @@ namespace KerbalSimpit.Providers
             {
                 toggleGroups(toggleBuffer);
                 toggleBuffer = 0;
-            }
-
-            updateCurrentState();
+            }        
         }
 
         public void actionActivateCallback(byte ID, object Data)
@@ -87,15 +86,16 @@ namespace KerbalSimpit.Providers
             toggleBuffer = payload[0];
         }
 
-        private bool updateCurrentState()
+        private void updateCurrentState()
         {
             byte newState = getGroups();
             if (newState != currentStateBuffer)
             {
-                if (AGStateChannel != null) AGStateChannel.Fire(OutboundPackets.ActionGroups, newState);
-                return true;
-            } else {
-                return false;
+                if (AGStateChannel != null)
+                {
+                    AGStateChannel.Fire(OutboundPackets.ActionGroups, newState);
+                }
+                currentStateBuffer = newState;
             }
         }
 
