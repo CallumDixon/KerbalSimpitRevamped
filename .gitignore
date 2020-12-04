@@ -16,3 +16,7 @@ junk/
 install
 KerbalSpaceProgram
 .vs/KSPSimpitRevamp/v16/.suo
+.vs/KSPRevampOfSimpit/v16/.suo
+*.csproj
+*.user
+*.sln
