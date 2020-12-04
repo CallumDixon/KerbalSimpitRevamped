@@ -34,12 +34,14 @@ namespace KerbalSimpit
         public static byte Apsides = 33;
         public static byte ApsidesTime = 34;
         public static byte ManeuverData = 35;
+        public static byte SASMode = 36;
 
         // Vessel Details
         public static byte ActionGroups = 40;
         public static byte DeltaV = 41;
         public static byte DeltaVEnv = 42;
         public static byte BurnTime = 43;
+        public static byte CAGStatus = 44;
 
         // External Environment
         public static byte TargetInfo = 50;
