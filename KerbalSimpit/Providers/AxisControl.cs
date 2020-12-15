@@ -10,8 +10,7 @@ namespace KerbalSimPit.Providers
     [KSPAddon(KSPAddon.Startup.Flight, false)]
     public class KerbalSimpitAxisController : MonoBehaviour
     {
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        [Serializable]
+        [StructLayout(LayoutKind.Sequential, Pack=1)][Serializable]
         public struct RotationalStruct
         {
             public short pitch;
@@ -19,8 +18,7 @@ namespace KerbalSimPit.Providers
             public short yaw;
             public byte mask;
         }
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        [Serializable]
+        [StructLayout(LayoutKind.Sequential, Pack=1)][Serializable]
         public struct TranslationalStruct
         {
             public short X;
@@ -28,8 +26,7 @@ namespace KerbalSimPit.Providers
             public short Z;
             public byte mask;
         }
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        [Serializable]
+        [StructLayout(LayoutKind.Sequential, Pack=1)][Serializable]
         public struct WheelStruct
         {
             public short steer;
@@ -41,10 +38,6 @@ namespace KerbalSimPit.Providers
         private EventData<byte, object> RotationChannel, TranslationChannel,
             WheelChannel, ThrottleChannel, AutopilotChannel;
 
-        // Outbound messages
-
-        private EventData<byte, object> SASModeChannel;
-
         private RotationalStruct myRotation, newRotation;
 
         private TranslationalStruct myTranslation, newTranslation;
@@ -55,11 +48,7 @@ namespace KerbalSimPit.Providers
         private volatile bool myThrottleFlag;
 
         private VesselAutopilot.AutopilotMode mySASMode;
-
-        private VesselAutopilot.AutopilotMode prevSASMode;
-        private VesselAutopilot.AutopilotMode currentSASMode;
-
-        private Vessel myActiveVessel;
+        private Vessel lastActiveVessel;
 
         public void Start()
         {
@@ -74,86 +63,9 @@ namespace KerbalSimPit.Providers
             AutopilotChannel = GameEvents.FindEvent<EventData<byte, object>>("onSerialReceived20");
             if (AutopilotChannel != null) AutopilotChannel.Add(autopilotModeCallback);
 
-            SASModeChannel = GameEvents.FindEvent<EventData<byte, object>>("toSerial36");
-
+            lastActiveVessel = FlightGlobals.ActiveVessel;
             FlightGlobals.ActiveVessel.OnPostAutopilotUpdate += AutopilotUpdater;
-
-            updateCAG();
-
-        }
-
-        public void Update()
-        {
-            updateCAG();
-        }
-
-        public void updateCAG()
-        {
-            currentSASMode = FlightGlobals.ActiveVessel.Autopilot.Mode;
-
-            
-            byte SASModeSend = 0;
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Prograde))
-            {
-                SASModeSend = 1;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Prograde"));
-            }
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Retrograde))
-            {
-                SASModeSend = 2;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Retrograde"));
-            }
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Normal))
-            {
-                SASModeSend = 3;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Normal"));
-            }
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Antinormal))
-            {
-                SASModeSend = 4;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Anti-Normal"));
-            }
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.RadialIn))
-            {
-                SASModeSend = 5;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Radial In"));
-            }
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.RadialOut))
-            {
-                SASModeSend = 6;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Radial Out"));
-            }
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Target))
-            {
-                SASModeSend = 7;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Target"));
-            }
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.AntiTarget))
-            {
-                SASModeSend = 8;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Anti-Target"));
-            }
-
-            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Maneuver))
-            {
-                SASModeSend = 9;
-                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Maneuver"));
-            }
-
-            if (SASModeChannel != null)
-            {
-                SASModeChannel.Fire(OutboundPackets.SASMode, SASModeSend);
-            }
-            
-        prevSASMode = currentSASMode;
+            GameEvents.onVesselChange.Add(OnVesselChange);
         }
 
         public void OnDestroy()
@@ -161,10 +73,18 @@ namespace KerbalSimPit.Providers
             if (RotationChannel != null) RotationChannel.Remove(vesselRotationCallback);
             if (TranslationChannel != null) TranslationChannel.Remove(vesselTranslationCallback);
             if (WheelChannel != null) WheelChannel.Remove(wheelCallback);
-            if (ThrottleChannel != null) ThrottleChannel.Remove(throttleCallback);
-            if (AutopilotChannel != null) AutopilotChannel.Remove(autopilotModeCallback);
+            if (ThrottleChannel!= null) ThrottleChannel.Remove(throttleCallback);
+            if (AutopilotChannel!= null) AutopilotChannel.Remove(autopilotModeCallback);
 
-            FlightGlobals.ActiveVessel.OnPostAutopilotUpdate -= AutopilotUpdater;
+            lastActiveVessel.OnPostAutopilotUpdate -= AutopilotUpdater;
+            GameEvents.onVesselChange.Remove(OnVesselChange);
+        }
+
+        public void OnVesselChange(Vessel vessel)
+        {
+            lastActiveVessel.OnPostAutopilotUpdate -= AutopilotUpdater;
+            lastActiveVessel = FlightGlobals.ActiveVessel;
+            FlightGlobals.ActiveVessel.OnPostAutopilotUpdate += AutopilotUpdater;
         }
 
         public void vesselRotationCallback(byte ID, object Data)
@@ -238,15 +158,14 @@ namespace KerbalSimPit.Providers
         {
             byte[] payload = (byte[])Data;
             mySASMode = (VesselAutopilot.AutopilotMode)(payload[0]);
-            myActiveVessel = FlightGlobals.ActiveVessel;
 
-            if (myActiveVessel.Autopilot.CanSetMode(mySASMode))
+            if (FlightGlobals.ActiveVessel.Autopilot.CanSetMode(mySASMode))
             {
-                myActiveVessel.Autopilot.SetMode((VesselAutopilot.AutopilotMode)mySASMode);
+                FlightGlobals.ActiveVessel.Autopilot.SetMode((VesselAutopilot.AutopilotMode)mySASMode);
                 if (KSPit.Config.Verbose)
                 {
                     Debug.Log(String.Format("KerbalSimpit: payload is {0}", mySASMode));
-                    Debug.Log(String.Format("KerbalSimpit: SAS mode is {0}", myActiveVessel.Autopilot.Mode.ToString()));
+                    Debug.Log(String.Format("KerbalSimpit: SAS mode is {0}", FlightGlobals.ActiveVessel.Autopilot.Mode.ToString()));
                 }
             }
             else
@@ -259,46 +178,42 @@ namespace KerbalSimPit.Providers
         {
             if (myRotation.pitch != 0)
             {
-                fcs.pitch = (float)myRotation.pitch / 32767;
+                fcs.pitch = (float)myRotation.pitch/ Int16.MaxValue;
             }
             if (myRotation.roll != 0)
             {
-                fcs.roll = (float)myRotation.roll / 32767;
+                fcs.roll = (float)myRotation.roll/ Int16.MaxValue;
             }
             if (myRotation.yaw != 0)
             {
-                fcs.yaw = (float)myRotation.yaw / 32767;
+                fcs.yaw = (float)myRotation.yaw/ Int16.MaxValue;
             }
 
             if (myTranslation.X != 0)
             {
-                fcs.X = (float)myTranslation.X / 32767;
+                fcs.X = (float)myTranslation.X/ Int16.MaxValue;
             }
             if (myTranslation.Y != 0)
             {
-                fcs.Y = (float)myTranslation.Y / 32767;
+                fcs.Y = (float)myTranslation.Y/ Int16.MaxValue;
             }
             if (myTranslation.Z != 0)
             {
-                fcs.Z = (float)myTranslation.Z / 32767;
+                fcs.Z = (float)myTranslation.Z/ Int16.MaxValue;
             }
 
             if (myWheel.steer != 0)
             {
-                fcs.wheelSteer = (float)myWheel.steer / 32767;
+                fcs.wheelSteer = (float)myWheel.steer/ Int16.MaxValue;
             }
             if (myWheel.throttle != 0)
             {
-                fcs.wheelThrottle = (float)myWheel.throttle / 32767;
+                fcs.wheelThrottle = (float)myWheel.throttle/ Int16.MaxValue;
             }
 
             if (myThrottleFlag)
             {
-                if (KSPit.Config.Verbose)
-                {
-                    Debug.Log(String.Format("KerbalSimpit: Setting throttle to {0}/32767", myThrottle));
-                }
-                fcs.mainThrottle = (float)myThrottle / 32767;
+                fcs.mainThrottle = (float)myThrottle/ Int16.MaxValue;
             }
         }
     }
