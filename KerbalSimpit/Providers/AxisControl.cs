@@ -77,76 +77,83 @@ namespace KerbalSimPit.Providers
             SASModeChannel = GameEvents.FindEvent<EventData<byte, object>>("toSerial36");
 
             FlightGlobals.ActiveVessel.OnPostAutopilotUpdate += AutopilotUpdater;
+
+            updateCAG();
+
         }
 
         public void Update()
         {
+            updateCAG();
+        }
+
+        public void updateCAG()
+        {
             currentSASMode = FlightGlobals.ActiveVessel.Autopilot.Mode;
 
-            if (currentSASMode != prevSASMode)
+            
+            byte SASModeSend = 0;
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Prograde))
             {
-                byte SASModeSend = 0;
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Prograde))
-                {
-                    SASModeSend = 1;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Prograde"));
-                }
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Retrograde))
-                {
-                    SASModeSend = 2;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Retrograde"));
-                }
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Normal))
-                {
-                    SASModeSend = 3;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Normal"));
-                }
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Antinormal))
-                {
-                    SASModeSend = 4;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Anti-Normal"));
-                }
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.RadialIn))
-                {
-                    SASModeSend = 5;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Radial In"));
-                }
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.RadialOut))
-                {
-                    SASModeSend = 6;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Radial Out"));
-                }
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Target))
-                {
-                    SASModeSend = 7;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Target"));
-                }
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.AntiTarget))
-                {
-                    SASModeSend = 8;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Anti-Target"));
-                }
-
-                if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Maneuver))
-                {
-                    SASModeSend = 9;
-                    Debug.Log(String.Format("KerbalSimpit: SAS Mode is Maneuver"));
-                }
-
-                if (SASModeChannel != null)
-                {
-                    SASModeChannel.Fire(OutboundPackets.SASMode, SASModeSend);
-                }
+                SASModeSend = 1;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Prograde"));
             }
-            prevSASMode = currentSASMode;
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Retrograde))
+            {
+                SASModeSend = 2;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Retrograde"));
+            }
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Normal))
+            {
+                SASModeSend = 3;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Normal"));
+            }
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Antinormal))
+            {
+                SASModeSend = 4;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Anti-Normal"));
+            }
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.RadialIn))
+            {
+                SASModeSend = 5;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Radial In"));
+            }
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.RadialOut))
+            {
+                SASModeSend = 6;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Radial Out"));
+            }
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Target))
+            {
+                SASModeSend = 7;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Target"));
+            }
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.AntiTarget))
+            {
+                SASModeSend = 8;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Anti-Target"));
+            }
+
+            if (currentSASMode.Equals(VesselAutopilot.AutopilotMode.Maneuver))
+            {
+                SASModeSend = 9;
+                Debug.Log(String.Format("KerbalSimpit: SAS Mode is Maneuver"));
+            }
+
+            if (SASModeChannel != null)
+            {
+                SASModeChannel.Fire(OutboundPackets.SASMode, SASModeSend);
+            }
+            
+        prevSASMode = currentSASMode;
         }
 
         public void OnDestroy()
