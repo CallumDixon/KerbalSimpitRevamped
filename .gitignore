@@ -15,3 +15,7 @@ junk/
 # Ignore the symlink files, pointing to the game install directory
 install
 KerbalSpaceProgram
+.vs/KSPRevampOfSimpit/v16/.suo
+*.csproj
+*.user
+*.sln
