@@ -64,6 +64,36 @@ namespace KerbalSimpit
         public static byte WheelControl = 18;
         public static byte VesselThrottle = 19;
         public static byte AutopilotMode = 20;
+        public static byte CameraMode = 21;
+        public static byte CameraRotation = 22;
+        public static byte CameraTranslation = 23;
+        public static byte WarpChange = 24;
+    }
+
+    public static class CameraControlBits
+    {
+        // Flight Camera Modes
+        public const byte FlightMode = 1;
+        // Order from: https://kerbalspaceprogram.com/api/class_flight_camera.html#ae90b21deb28ca1978c229f0511116c1a
+        public const byte Auto = 2;
+        public const byte Free = 3;
+        public const byte Orbital = 4;
+        public const byte Chase = 5;
+        public const byte Locked = 6;
+
+        public const byte IVAMode = 10;
+        public const byte PlanetaryMode = 20;
+
+        public const byte NextCamera = 50;
+        public const byte PreviousCamera = 51;
+        public const byte NextCameraModeState = 52;
+        public const byte PreviousCameraModeState = 53;
+        // Cycle Camera Modes
+       // public static byte NextBit = 6;
+        //public static byte PreviousBit = 7;
+
+        //public static short 
+
     }
 
     public static class ActionGroupBits
@@ -77,5 +107,29 @@ namespace KerbalSimpit
         public static byte SASBit = 16;
         public static byte BrakesBit = 32;
         public static byte AbortBit = 64;
+    }
+
+    public static class WarpControlValues
+    {
+        public const byte warpRate1 = 0;
+        public const byte warpRate2 = 1;
+        public const byte warpRate3 = 2;
+        public const byte warpRate4 = 3;
+        public const byte warpRate5 = 4;
+        public const byte warpRate6 = 5;
+        public const byte warpRate7 = 6;
+        public const byte warpRate8 = 7;
+        public const byte warpRatePhys1 = 8;
+        public const byte warpRatePhys2 = 9;
+        public const byte warpRatePhys3 = 10;
+        public const byte warpRatePhys4 = 11;
+        public const byte warpRateUp = 12;
+        public const byte warpRateDown = 13;
+        public const byte warpNextManeuver = 14;
+        public const byte warpSOIChange = 15;
+        public const byte warpApoapsis = 16;
+        public const byte warpPeriapsis = 17;
+        public const byte warpNextMorning = 18;
+        public const byte warpCancelAutoWarp = 255;
     }
 }
